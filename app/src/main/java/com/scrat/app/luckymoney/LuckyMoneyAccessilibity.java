@@ -14,6 +14,9 @@ import java.util.List;
  */
 public class LuckyMoneyAccessilibity extends AccessibilityService {
 
+    private static final String LUNCHER_CLASSNAME = "com.tencent.mm.ui.LauncherUI";
+    private static final String RECEIVE_LUCK_MONEY_CLASSNAME = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI";
+
     private boolean isGetLuckyMoney = false;
     private boolean isOpenLuckyMoney = false;
 
@@ -50,10 +53,9 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
                 }
                 break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                String className = event.getClassName().toString();
-                if (!isGetLuckyMoney && className.equals("com.tencent.mm.ui.LauncherUI")) {
+                if (!isGetLuckyMoney && LUNCHER_CLASSNAME.equals(event.getClassName().toString())) {
                     getPacket();// 领取红包
-                } else if (!isOpenLuckyMoney && className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")) {
+                } else if (!isOpenLuckyMoney && RECEIVE_LUCK_MONEY_CLASSNAME.equals(event.getClassName().toString())) {
                     openPacket();// 打开红包
                 }
                 break;
@@ -72,10 +74,10 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
 
     private synchronized void getPacket() {
         log("领取红包");
-        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        if (rootNode == null) {
+        final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        if (rootNode == null)
             return;
-        }
+
         List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/a13");
         for (int i = nodeInfos.size() - 1; i >= 0; i--) {
             AccessibilityNodeInfo nodeInfo = nodeInfos.get(i);
@@ -92,7 +94,7 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
     }
 
     private synchronized void openPacket() {
-        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode == null)
             return;
 
