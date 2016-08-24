@@ -1,6 +1,6 @@
 {
   "name": "Luckymoney",
-  "tagline": "Android版自动抢微信红包插件",
-  "body": "# 微信抢红包\r\n\r\n-----",
+  "tagline": "Android微信抢红包插件",
+  "body": "# 微信抢红包使用说明\r\n\r\n-----\r\n\r\n## 1，进入辅助功能设置页\r\n\r\n![](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/images/step.1.jpg)\r\n\r\n## 2，开启服务\r\n\r\n![](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/images/step.2.jpg)\r\n\r\n## 3，点击确认\r\n\r\n![](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/images/step.3.jpg)",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
