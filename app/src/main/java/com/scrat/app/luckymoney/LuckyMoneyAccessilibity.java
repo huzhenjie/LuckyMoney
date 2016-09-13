@@ -61,6 +61,7 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
                 break;
         }
 
+        event.recycle();
     }
 
     @Override
