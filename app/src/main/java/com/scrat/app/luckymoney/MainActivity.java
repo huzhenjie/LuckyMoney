@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openAccessibilitySetting(View v) {
         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(intent);
     }
 
