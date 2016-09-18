@@ -15,6 +15,7 @@ import java.util.List;
 public class LuckyMoneyAccessilibity extends AccessibilityService {
 
     private static final String LUNCHER_CLASSNAME = "com.tencent.mm.ui.LauncherUI";
+    private static final String LISTVIEW_CLASSNAME = "android.widget.ListView";
     private static final String RECEIVE_LUCK_MONEY_CLASSNAME = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI";
 
     private boolean isGetLuckyMoney = false;
@@ -29,6 +30,14 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
+        final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        if (rootNode == null) {
+            event.recycle();
+            return;
+        }
+
+//        log("type = " + eventType + " ; " + event.getClassName().toString() + " " + isGetLuckyMoney);
+
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:// 通知栏事件
                 List<CharSequence> texts = event.getText();
@@ -52,11 +61,14 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
                     }
                 }
                 break;
+            case AccessibilityEvent.TYPE_VIEW_FOCUSED:
+                if (!isGetLuckyMoney && LISTVIEW_CLASSNAME.equals(event.getClassName().toString())) {
+                    getPacket(rootNode);// 领取红包
+                }
+                break;
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                if (!isGetLuckyMoney && LUNCHER_CLASSNAME.equals(event.getClassName().toString())) {
-                    getPacket();// 领取红包
-                } else if (!isOpenLuckyMoney && RECEIVE_LUCK_MONEY_CLASSNAME.equals(event.getClassName().toString())) {
-                    openPacket();// 打开红包
+                if (!isOpenLuckyMoney && RECEIVE_LUCK_MONEY_CLASSNAME.equals(event.getClassName().toString())) {
+                    openPacket(rootNode);// 打开红包
                 }
                 break;
         }
@@ -73,12 +85,8 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
         Log.e("Accessibility", content);
     }
 
-    private synchronized void getPacket() {
+    private synchronized void getPacket(AccessibilityNodeInfo rootNode) {
         log("领取红包");
-        final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        if (rootNode == null)
-            return;
-
         List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/a13");
         for (int i = nodeInfos.size() - 1; i >= 0; i--) {
             AccessibilityNodeInfo nodeInfo = nodeInfos.get(i);
@@ -94,11 +102,7 @@ public class LuckyMoneyAccessilibity extends AccessibilityService {
         }
     }
 
-    private synchronized void openPacket() {
-        final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        if (rootNode == null)
-            return;
-
+    private synchronized void openPacket(AccessibilityNodeInfo rootNode) {
         List<AccessibilityNodeInfo> infos = rootNode.findAccessibilityNodeInfosByText("看看大家的手气");
         if (infos.size() > 0) {
             List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/a13");
