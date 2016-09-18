@@ -20,6 +20,13 @@ public class MainActivity extends AppCompatActivity {
         initData();
     }
 
+    @Override
+    protected void onDestroy() {
+        mWebview.removeAllViews();
+        mWebview.destroy();
+        super.onDestroy();
+    }
+
     private void initView() {
         mWebview = (WebView) findViewById(R.id.webview);
     }
