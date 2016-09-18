@@ -2,6 +2,10 @@
 
 -----
 
+## 下载并安装
+
+[![Download and install](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/images/google_play.png)](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/downloads/lucky-money-1.0.0-beta.apk)
+
 ## 1，进入辅助功能设置页
 
 ![](https://raw.githubusercontent.com/huzhenjie/LuckyMoney/master/images/step.1.jpg)
