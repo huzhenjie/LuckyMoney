@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by yixuanxuan on 16/8/22.
  */
-public class LuckyMoneyAccessilibity extends AccessibilityService {
+public class LuckyMoneyAccessibility extends AccessibilityService {
 
     private static final String LUNCHER_CLASSNAME = "com.tencent.mm.ui.LauncherUI";
     private static final String LISTVIEW_CLASSNAME = "android.widget.ListView";

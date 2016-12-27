@@ -22,7 +22,7 @@
         </activity>
 
         <service
-            android:name=".LuckyMoneyAccessilibity"
+            android:name=".LuckyMoneyAccessibility"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
