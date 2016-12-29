@@ -18,7 +18,6 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
     private static final String LISTVIEW_CLASSNAME = "android.widget.ListView";
     private static final String RECEIVE_LUCK_MONEY_CLASSNAME = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI";
 
-    private boolean isGetLuckyMoney = false;
     private boolean isOpenLuckyMoney = false;
 
     @Override
@@ -31,49 +30,22 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
         final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-        if (rootNode == null) {
-            event.recycle();
+        if (rootNode == null)
             return;
-        }
 
 //        log("type = " + eventType + " ; " + event.getClassName().toString() + " " + isGetLuckyMoney);
 
         switch (eventType) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:// 通知栏事件
-                List<CharSequence> texts = event.getText();
-                if (!texts.isEmpty()) {
-                    for (CharSequence text : texts) {
-                        String content = text.toString();
-                        if (content.contains("[微信红包]")) {
-                            // 监听到微信红包的notification，打开通知
-                            if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification) {
-                                Notification notification = (Notification) event.getParcelableData();
-                                PendingIntent pendingIntent = notification.contentIntent;
-                                try {
-                                    isGetLuckyMoney = false;
-                                    isOpenLuckyMoney = false;
-                                    pendingIntent.send();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                }
+                clickNotification(event);
                 break;
             case AccessibilityEvent.TYPE_VIEW_FOCUSED:
-                if (!isGetLuckyMoney && LISTVIEW_CLASSNAME.equals(event.getClassName().toString())) {
+                if (LISTVIEW_CLASSNAME.equals(event.getClassName().toString())) {
                     getPacket(rootNode);// 领取红包
                 }
                 break;
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                if (!isOpenLuckyMoney && RECEIVE_LUCK_MONEY_CLASSNAME.equals(event.getClassName().toString())) {
-                    openPacket(rootNode);// 打开红包
-                }
-                break;
         }
-
-        event.recycle();
+        openPacket(rootNode);// 打开红包
     }
 
     @Override
@@ -85,46 +57,51 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
         Log.e("Accessibility", content);
     }
 
-    private synchronized void getPacket(AccessibilityNodeInfo rootNode) {
-        log("领取红包");
-        List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/a13");
-        for (int i = nodeInfos.size() - 1; i >= 0; i--) {
-            AccessibilityNodeInfo nodeInfo = nodeInfos.get(i);
-            if (nodeInfo.isClickable()) {
-                List<AccessibilityNodeInfo> tmp = nodeInfo.findAccessibilityNodeInfosByText("领取红包");
-                if (tmp.size() > 0) {
-                    log("点击 " + nodeInfo);
-                    isGetLuckyMoney = true;
-                    nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    break;
+    private boolean clickNotification(AccessibilityEvent event) {
+        List<CharSequence> texts = event.getText();
+        if (texts == null || texts.isEmpty())
+            return false;
+
+        for (CharSequence text : texts) {
+            if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification && text.toString().contains("[微信红包]")) {
+                try {
+                    Notification notification = (Notification) event.getParcelableData();
+                    PendingIntent pendingIntent = notification.contentIntent;
+                    pendingIntent.send();
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
+        return false;
+    }
+
+    private synchronized boolean getPacket(AccessibilityNodeInfo rootNode) {
+        if (Util.isTextExist(rootNode, "领取红包")) {
+            log("领取红包");
+            List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByText("领取红包");
+            for (int i = nodes.size() - 1; i >= 0; i--) {
+                AccessibilityNodeInfo node = nodes.get(i);
+                if (Util.clickParent(node))
+                    return true;
+            }
+        }
+        return false;
     }
 
     private synchronized void openPacket(AccessibilityNodeInfo rootNode) {
-        List<AccessibilityNodeInfo> infos = rootNode.findAccessibilityNodeInfosByText("看看大家的手气");
-        if (infos.size() > 0) {
-            List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/a13");
-            for (AccessibilityNodeInfo info : nodeInfos) {
-                if (info.isClickable()) {
-                    log("关闭");
-                    isOpenLuckyMoney = true;
-                    info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    break;
-                }
-            }
-        } else {
-            List<AccessibilityNodeInfo> nodeInfos = rootNode.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ba_");
-            for (AccessibilityNodeInfo info : nodeInfos) {
-                if (info.isClickable()) {
-                    log("打开红包");
-                    isOpenLuckyMoney = true;
-                    info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                    break;
-                }
-            }
+        String text = "发了一个红包，金额随机";
+        if (!Util.isTextExist(rootNode, text)) {
+            text = "给你发了一个红包";
+            if (!Util.isTextExist(rootNode, text))
+                return;
         }
 
+        List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByText(text);
+        AccessibilityNodeInfo parentNode = nodes.get(0).getParent();
+        if (Util.clickChild(parentNode)) {
+            log("打开红包");
+        }
     }
 }
