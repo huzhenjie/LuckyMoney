@@ -18,8 +18,6 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
     private static final String LISTVIEW_CLASSNAME = "android.widget.ListView";
     private static final String RECEIVE_LUCK_MONEY_CLASSNAME = "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI";
 
-    private boolean isOpenLuckyMoney = false;
-
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
@@ -28,6 +26,9 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event == null)
+            return;
+
         int eventType = event.getEventType();
         final AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode == null)
@@ -54,7 +55,7 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
     }
 
     private void log(String content) {
-        Log.e("Accessibility", content);
+//        Log.e("Accessibility", content);
     }
 
     private boolean clickNotification(AccessibilityEvent event) {
@@ -63,7 +64,7 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
             return false;
 
         for (CharSequence text : texts) {
-            if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification && text.toString().contains("[微信红包]")) {
+            if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification && text != null && text.toString().contains("[微信红包]")) {
                 try {
                     Notification notification = (Notification) event.getParcelableData();
                     PendingIntent pendingIntent = notification.contentIntent;
@@ -99,6 +100,9 @@ public class LuckyMoneyAccessibility extends AccessibilityService {
         }
 
         List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByText(text);
+        if (nodes == null || nodes.isEmpty())
+            return;
+
         AccessibilityNodeInfo parentNode = nodes.get(0).getParent();
         if (Util.clickChild(parentNode)) {
             log("打开红包");
