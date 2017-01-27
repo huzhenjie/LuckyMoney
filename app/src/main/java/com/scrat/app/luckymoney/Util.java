@@ -18,11 +18,17 @@ public class Util {
     }
 
     public static boolean isViewIdExist(AccessibilityNodeInfo rootNode, String viewId) {
+        if (rootNode == null)
+            return false;
+
         List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByViewId(viewId);
         return nodes != null && nodes.size() > 0;
     }
 
     public static boolean isTextExist(AccessibilityNodeInfo rootNode, String text) {
+        if (rootNode == null)
+            return false;
+
         List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByText(text);
         return nodes != null && nodes.size() > 0;
     }
@@ -41,6 +47,9 @@ public class Util {
     }
 
     public static boolean clickParentByText(AccessibilityNodeInfo rootNode, String text) {
+        if (rootNode == null)
+            return false;
+
         List<AccessibilityNodeInfo> nodes = rootNode.findAccessibilityNodeInfosByText(text);
         if (nodes == null || nodes.size() == 0)
             return false;
